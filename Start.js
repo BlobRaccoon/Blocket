@@ -4,7 +4,6 @@ const axios = require("axios");
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const puppeteer = require('puppeteer');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -23,6 +22,7 @@ const CHAT_HISTORY_LIMIT = 100;
 let chatHistory = [];
 const BANNED_IPS_FILE = path.join(__dirname, 'banned_ips.json');
 const mutedUsers = new Set();
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
 
 const saveBannedIps = (ips) => fs.writeFileSync(BAN_FILE, JSON.stringify(ips, null, 2));
 let bannedIps = getBannedIps();
@@ -98,11 +98,6 @@ function sanitizeUrl(input) {
     return url;
 }
 
-function getExe() {
-    const p = ['/usr/bin/google-chrome', '/usr/bin/chromium-browser', '/usr/bin/chromium', '/snap/bin/chromium'];
-    for (const x of p) if (fs.existsSync(x)) return x;
-    return null;
-}
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'reg.html')));
@@ -320,9 +315,33 @@ app.post('/api/open', authenticate, (req, res) => {
         totalOpened: user.blocksOpened 
     });
 });
+app.post('/api/admin/set-role', (req, res) => {
+    const { username, role, password } = req.body;
 
-const activeBrowsers = new Map();
-const MAX_BROWSERS = 3;
+    if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const users = getUsers();
+    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    if (role === 'founder') {
+        user.founder = true;
+        user.moderator = false;
+    } else if (role === 'moderator') {
+        user.founder = false;
+        user.moderator = true;
+    } else {
+        user.founder = false;
+        user.moderator = false;
+    }
+
+    saveUsers(users);
+    res.json({ success: true, message: `Updated ${username} to ${role.toUpperCase()}` });
+});
+
 const timedMutes = new Map();
 
 io.use((socket, next) => {
@@ -343,6 +362,7 @@ io.use((socket, next) => {
         socket.user = {
             username: user.username,
             role: user.role,
+            isFounder: !!user.founder, 
             isStaff: !!(user.founder || user.moderator),
             newperson: user.newperson ?? true,
             lastIp: user.lastIp || clientIp
@@ -352,9 +372,7 @@ io.use((socket, next) => {
 });
 
 io.on('connection', (socket) => {
-    let browser, page, client;
     let lastChatTime = 0;
-    let lastActionTime = 0;
 
     socket.join(`user:${socket.user.username}`);
     socket.emit('chat-history', chatHistory);
@@ -379,6 +397,22 @@ io.on('connection', (socket) => {
             const cmd = args[0].toLowerCase().slice(1);
             const target = args[1];
             const users = getUsers();
+
+            if (socket.user.isFounder) {
+                const tUser = users.find(u => u.username.toLowerCase() === target?.toLowerCase());
+                if (tUser) {
+                    if (cmd === 'setmod') {
+                        tUser.moderator = true; tUser.founder = false;
+                        saveUsers(users);
+                        return io.emit('chat-message', { user: "SYSTEM", role: "🛡️ STAFF", message: `${target} is now a Moderator.`, time: now });
+                    }
+                    if (cmd === 'setfounder') {
+                        tUser.founder = true; tUser.moderator = false;
+                        saveUsers(users);
+                        return io.emit('chat-message', { user: "SYSTEM", role: "🛡️ STAFF", message: `${target} is now a Founder.`, time: now });
+                    }
+                }
+            }
 
             if (socket.user.isStaff) {
                 switch (cmd) {
@@ -466,16 +500,17 @@ io.on('connection', (socket) => {
                     return socket.emit('chat-message', { user: "SYSTEM", role: "🛡️ ONLINE", message: staff.join(', ') || "None", time: now });
 
                 case 'help':
-                    const help = socket.user.isStaff ? "kick, ban, permban, unban, whois, mute, unmute, clear, announce, roll, stats, staff, msg" : "roll, stats, staff, msg, help";
+                    let help = socket.user.isStaff ? "kick, ban, permban, unban, whois, mute, unmute, clear, announce, roll, stats, staff, msg" : "roll, stats, staff, msg, help";
+                    if (socket.user.isFounder) help += ", setmod, setfounder";
                     return socket.emit('chat-message', { user: "SYSTEM", role: "❓ HELP", message: `Commands: ${help}`, time: now });
             }
         }
 
-        const users = getUsers();
-        const dbUser = users.find(u => u.username === socket.user.username);
+        const udb = getUsers();
+        const dbUser = udb.find(u => u.username === socket.user.username);
         if (dbUser) {
             dbUser.messagesSent = (dbUser.messagesSent || 0) + 1;
-            saveUsers(users);
+            saveUsers(udb);
         }
 
         const chatData = {
@@ -490,73 +525,10 @@ io.on('connection', (socket) => {
         io.emit('chat-message', chatData);
     });
 
-    socket.on('start', async ({ pet }) => {
-        if (activeBrowsers.size >= MAX_BROWSERS) return socket.emit('err', "Resources full.");
-        const url = `https://www.google.com/search?q=${encodeURIComponent(pet || 'cat')}&tbm=isch`;
-        
-        try {
-            if (browser) await browser.close();
-            browser = await puppeteer.launch({
-    headless: true,
-    args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--single-process'
-    ]
+    socket.on('disconnect', () => {
+    });
 });
-            activeBrowsers.set(socket.id, browser);
-            page = await browser.newPage();
-            await page.setViewport({ width: 1280, height: 720 });
-            await page.goto(url, { waitUntil: 'networkidle2' });
 
-            const refresh = async () => {
-                if (!page) return;
-                const html = await page.evaluate(() => document.documentElement.outerHTML);
-                socket.emit('frame', html);
-            };
-
-            socket.on('action', async (d) => {
-                const now = Date.now();
-                if (now - lastActionTime < 200 || !page) return;
-                lastActionTime = now;
-                if (d.type === 'click') await page.mouse.click(d.x, d.y);
-                else if (d.type === 'key') await page.keyboard.press(d.key);
-                setTimeout(refresh, 500);
-            });
-
-            socket.on('take-screenshot', async () => {
-                if (!page) return;
-                const buffer = await page.screenshot({ type: 'png' });
-                socket.emit('screenshot-data', buffer.toString('base64'));
-            });
-
-            socket.on('toggle-record', async (active) => {
-                if (!page) return;
-                if (!client) client = await page.target().createCDPSession();
-                if (active) {
-                    await client.send('Page.startScreencast', { format: 'jpeg', quality: 40 });
-                    client.on('Page.screencastFrame', ({ data, sessionId }) => {
-                        socket.emit('record-frame', data);
-                        client.send('Page.screencastFrameAck', { sessionId });
-                    });
-                } else await client.send('Page.stopScreencast');
-            });
-
-            await refresh();
-        } catch (e) {
-            socket.emit('err', "Browser error.");
-        }
-    });
-
-    socket.on('disconnect', async () => {
-        activeBrowsers.delete(socket.id);
-        try {
-            if (client) client.removeAllListeners();
-            if (browser) await browser.close();
-        } catch {}
-    });
-}); 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
