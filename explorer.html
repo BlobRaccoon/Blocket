@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blocket | Explorer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/socket.io/socket.io.js"></script>
     <style>
         .active-tab { background: #808080; color: #ffffff !important; }
         body { background:#121212; font-family: 'Inter', sans-serif; overflow: hidden; }
-        #browser-frame { background: white; width: 100%; height: calc(100vh - 180px); border-radius: 1rem; overflow: hidden; position: relative; }
-        .browser-content { width: 100%; height: 100%; border: none; }
+        #browser-frame { background: #1a1a1a; width: 100%; height: calc(100vh - 180px); border-radius: 1rem; overflow-y: auto; position: relative; }
+        .pet-card { transition: transform 0.2s; }
+        .pet-card:hover { transform: scale(1.02); }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #1a1a1a; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
@@ -21,104 +21,115 @@
     <div class="w-64 bg-[#1a1a1a] border-r border-neutral-800 flex flex-col p-6 shadow-2xl">
         <h2 class="text-2xl font-black italic mb-10 tracking-tighter text-[#808080]">BLOCKET</h2>
         <nav class="flex flex-col gap-2 flex-grow">
-            <a href="/stats" id="nav-stats" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
-                <span>📊</span> Stats
-            </a>
-            <a href="/inventory" id="nav-inventory" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
-                <span>🎒</span> Inventory
-            </a>
-            <a href="/market" id="nav-market" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
-                <span>🛒</span> Market
-            </a>
-            <a href="/explorer" id="nav-explorer" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3 active-tab">
+            <a href="#" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3 active-tab">
                 <span>🌐</span> Explorer
             </a>
-            <a href="/chat" id="nav-chat" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
-                <span>💬</span> Chat
-            </a>
-
-            <div class="my-4 border-t border-slate-700"></div>
-
-            <a href="/view/credits" id="nav-credits" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
-                <span>📜</span> Credits
-            </a>
-            <a href="/view/terms" id="nav-terms" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
-                <span>⚖️</span> Terms
-            </a>
-            <a href="/view/privacy" id="nav-privacy" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
-                <span>🔒</span> Privacy
-            </a>
-        </nav>
-        <a href="/logout" class="bg-neutral-800 text-neutral-400 p-3 rounded-lg text-center font-bold hover:bg-red-900/20 hover:text-red-500 transition border border-neutral-700">
-            LOGOUT
-        </a>
+            </nav>
     </div>
 
     <div class="flex-grow p-8 flex flex-col">
         <header class="mb-6 flex justify-between items-center">
             <h1 class="text-5xl font-black italic uppercase tracking-tighter">Pet Explorer</h1>
             <div class="flex gap-4">
-                <select id="pet-select" class="bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-[#808080] text-sm">
-                    <option value="cat">Cats 🐱</option>
-                    <option value="dog">Dogs 🐶</option>
-                    <option value="hamster">Hamsters 🐹</option>
-                    <option value="capybara">Capybaras 🥥</option>
-                    <option value="axolotl">Axolotls 🦎</option>
-                    <option value="rabbit">Rabbits 🐰</option>
-                    <option value="red panda">Red Pandas 🦊</option>
-                    <option value="penguin">Penguins 🐧</option>
-                    <option value="koala">Koalas 🐨</option>
-                    <option value="hedgehog">Hedgehogs 🦔</option>
-                    <option value="sloth">Sloths 🦥</option>
-                    <option value="otter">Otters 🦦</option>
-                </select>
+                <select id="pet-select" class="bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-[#808080] text-sm text-white">
+    <optgroup label="Common Pets" class="bg-neutral-900 text-neutral-400">
+        <option value="cat" selected>Cats 🐱</option>
+        <option value="dog">Dogs 🐶</option>
+        <option value="rabbit">Rabbits 🐰</option>
+        <option value="hamster">Hamsters 🐹</option>
+        <option value="guinea pig">Guinea Pigs 🐹</option>
+        <option value="goldfish">Goldfish 🐠</option>
+    </optgroup>
+
+    <optgroup label="Exotics & Reptiles" class="bg-neutral-900 text-neutral-400">
+        <option value="axolotl">Axolotls 🦎</option>
+        <option value="capybara">Capybaras 🥥</option>
+        <option value="hedgehog">Hedgehogs 🦔</option>
+        <option value="chameleon">Chameleons 🦎</option>
+        <option value="bearded dragon">Bearded Dragons 🐲</option>
+        <option value="snake">Snakes 🐍</option>
+        <option value="ferret">Ferrets 🦦</option>
+    </optgroup>
+
+    <optgroup label="Birds & Small Mammals" class="bg-neutral-900 text-neutral-400">
+        <option value="parrot">Parrots 🦜</option>
+        <option value="owl">Owls 🦉</option>
+        <option value="duck">Ducks 🦆</option>
+        <option value="penguin">Penguins 🐧</option>
+        <option value="sugar glider">Sugar Gliders 🐿️</option>
+        <option value="chinchilla">Chinchillas 🐭</option>
+    </optgroup>
+
+    <optgroup label="Wild & Rare" class="bg-neutral-900 text-neutral-400">
+        <option value="red panda">Red Pandas 🦊</option>
+        <option value="koala">Koalas 🐨</option>
+        <option value="sloth">Sloths 🦥</option>
+        <option value="otter">Otters 🦦</option>
+        <option value="fennec fox">Fennec Foxes 🦊</option>
+        <option value="raccoon">Raccoons 🦝</option>
+    </optgroup>
+
+    <optgroup label="Mythical (Fun)" class="bg-neutral-900 text-neutral-400">
+        <option value="dragon">Dragons 🐲</option>
+        <option value="unicorn">Unicorns 🦄</option>
+        <option value="phoenix">Phoenixes 🐦‍🔥</option>
+    </optgroup>
+</select>
                 <button onclick="startExplorer()" class="bg-[#808080] hover:bg-neutral-500 px-6 py-2 rounded-lg font-black uppercase transition-all active:scale-95">Search</button>
             </div>
         </header>
 
-        <div id="browser-frame" class="shadow-2xl border-4 border-neutral-800">
+        <div id="browser-frame" class="shadow-2xl border-4 border-neutral-800 p-6">
             <div id="loading-overlay" class="absolute inset-0 bg-[#1a1a1a] flex flex-col items-center justify-center z-10">
                 <div class="text-6xl mb-4">🔍</div>
                 <p class="font-black text-neutral-500 uppercase tracking-widest">Select a pet to start exploring</p>
             </div>
-            <iframe id="display" class="browser-content hidden"></iframe>
+            
+            <div id="image-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
     </div>
 
-    <script src="/javascript/Isbot.js"></script>
-
     <script>
-        const token = localStorage.getItem('token');
-        if (!token) location.href = '/login';
-
-        const socket = io({ auth: { token } });
-        const display = document.getElementById('display');
+        const imageGrid = document.getElementById('image-grid');
         const overlay = document.getElementById('loading-overlay');
 
-        function startExplorer() {
+        async function startExplorer() {
             const pet = document.getElementById('pet-select').value;
-            overlay.innerHTML = `<div class="text-6xl animate-bounce mb-4">🌐</div><p class="font-black text-white uppercase tracking-widest">Loading ${pet} images...</p>`;
+
             overlay.classList.remove('hidden');
-            display.classList.add('hidden');
-            socket.emit('start', { pet });
+            overlay.innerHTML = `<div class="text-6xl animate-bounce mb-4">🌐</div><p class="font-black text-white uppercase tracking-widest">Fetching ${pet}s...</p>`;
+            imageGrid.innerHTML = '';
+
+            try {
+                
+                const response = await fetch(`https://api.duckduckgo.com/?q=${pet}&format=json&pretty=1`);
+                
+                setTimeout(() => {
+                    renderGallery(pet);
+                    overlay.classList.add('hidden');
+                }, 1000);
+
+            } catch (err) {
+                console.error(err);
+                alert("Search failed. Check your connection.");
+            }
         }
 
-        socket.on('frame', (html) => {
-            overlay.classList.add('hidden');
-            display.classList.remove('hidden');
-            const doc = display.contentResource || display.contentDocument;
-            doc.open();
-            doc.write(html);
-            doc.close();
+        function renderGallery(pet) {
 
-            doc.addEventListener('click', (e) => {
-                socket.emit('action', { type: 'click', x: e.clientX, y: e.clientY });
-            });
-        });
-
-        socket.on('err', (msg) => {
-            alert("Error: " + msg);
-        });
+            for(let i = 0; i < 9; i++) {
+                const card = document.createElement('div');
+                card.className = "pet-card bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 shadow-lg";
+                card.innerHTML = `
+                    <img src="https://loremflickr.com/400/300/${pet}?lock=${i}" class="w-full h-48 object-cover" alt="${pet}">
+                    <div class="p-4">
+                        <h3 class="font-bold uppercase text-xs text-neutral-500 mb-1">Discovery #${i+1042}</h3>
+                        <p class="font-black italic">Rare ${pet.toUpperCase()}</p>
+                    </div>
+                `;
+                imageGrid.appendChild(card);
+            }
+        }
     </script>
 </body>
 </html>
