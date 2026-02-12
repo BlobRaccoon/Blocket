@@ -1,0 +1,197 @@
+[
+  {
+    "username": "Founder",
+    "password": "$2b$10$814/Ijl2.8mq01l9ky2zRehlaru7zzsy.M9FAGVxZ9xoaUVg1egH6",
+    "tokens": 590128523897,
+    "inventory": {
+      "11": {
+        "id": "11",
+        "name": "Black Cat",
+        "rarity": "Super Common",
+        "file": "black.png",
+        "pack": "Cat",
+        "sellprice": 10,
+        "count": 999
+      },
+      "12": {
+        "id": "12",
+        "name": "Void Cat",
+        "rarity": "Common",
+        "file": "void.png",
+        "pack": "Cat",
+        "sellprice": 80,
+        "count": 999
+      },
+      "13": {
+        "id": "13",
+        "name": "Business Cat",
+        "rarity": "Rare",
+        "file": "business.png",
+        "pack": "Cat",
+        "sellprice": 300,
+        "count": 999
+      },
+      "14": {
+        "id": "14",
+        "name": "Co-Founder Cat",
+        "rarity": "Epic",
+        "file": "co.png",
+        "pack": "Cat",
+        "sellprice": 600,
+        "count": 999
+      },
+      "15": {
+        "id": "15",
+        "name": "Founder Cat",
+        "rarity": "Godlike",
+        "file": "founder.png",
+        "pack": "Cat",
+        "sellprice": 5000,
+        "count": 999
+      },
+      "16": {
+        "id": "16",
+        "name": "Orange Cat",
+        "rarity": "Super Common",
+        "file": "orange.png",
+        "pack": "Cat",
+        "sellprice": 10,
+        "count": 999
+      },
+      "17": {
+        "id": "17",
+        "name": "Siamese Cat",
+        "rarity": "Uncommon",
+        "file": "siamese.png",
+        "pack": "Cat",
+        "sellprice": 150,
+        "count": 999
+      },
+      "18": {
+        "id": "18",
+        "name": "Ghost Cat",
+        "rarity": "Legendary",
+        "file": "ghost.png",
+        "pack": "Cat",
+        "sellprice": 1200,
+        "count": 999
+      },
+      "19": {
+        "id": "19",
+        "name": "Hacker Cat",
+        "rarity": "Mythical",
+        "file": "hacker.png",
+        "pack": "Cat",
+        "sellprice": 3000,
+        "count": 999
+      },
+      "21": {
+        "id": "21",
+        "name": "Border Collie",
+        "rarity": "Super Common",
+        "file": "bordercollie.png",
+        "pack": "Dog",
+        "sellprice": 10,
+        "count": 999
+      },
+      "22": {
+        "id": "22",
+        "name": "Husky",
+        "rarity": "Common",
+        "file": "husky.png",
+        "pack": "Dog",
+        "sellprice": 80,
+        "count": 999
+      },
+      "23": {
+        "id": "23",
+        "name": "German Shepherd",
+        "rarity": "Uncommon",
+        "file": "german.png",
+        "pack": "Dog",
+        "sellprice": 150,
+        "count": 999
+      },
+      "24": {
+        "id": "24",
+        "name": "Chuwawa",
+        "rarity": "Rare",
+        "file": "chuwawa.png",
+        "pack": "Dog",
+        "sellprice": 350,
+        "count": 999
+      },
+      "25": {
+        "id": "25",
+        "name": "Angry Dog",
+        "rarity": "Epic",
+        "file": "angry.png",
+        "pack": "Dog",
+        "sellprice": 700,
+        "count": 999
+      },
+      "26": {
+        "id": "26",
+        "name": "Sad Dog",
+        "rarity": "Legendary",
+        "file": "sad.png",
+        "pack": "Dog",
+        "sellprice": 1500,
+        "count": 999
+      },
+      "27": {
+        "id": "27",
+        "name": "Bonk dog",
+        "rarity": "Mythical",
+        "file": "bonk.png",
+        "pack": "Dog",
+        "sellprice": 3500,
+        "count": 999
+      },
+      "28": {
+        "id": "28",
+        "name": "Doge",
+        "rarity": "Godlike",
+        "file": "doge.png",
+        "pack": "Dog",
+        "sellprice": 5000,
+        "count": 999
+      },
+      "29": {
+        "id": "29",
+        "name": "Frorkie",
+        "rarity": "Super Common",
+        "file": "frorkie.png",
+        "pack": "Dog",
+        "sellprice": 10,
+        "count": 999
+      }
+    },
+    "messagesSent": 0,
+    "newperson": false,
+    "founder": true,
+    "moderator": false,
+    "banned": false,
+    "lastIp": "",
+    "role": "",
+    "dateJoined": 1770835021918,
+    "lastPing": 1770859477841,
+    "client": {
+      "userAgent": "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "platform": "Linux x86_64",
+      "language": "en-GB"
+    },
+    "blocksOpened": 1,
+    "ipInfo": {
+      "ip": "::1",
+      "country": null,
+      "countryCode": null,
+      "region": null,
+      "city": null,
+      "latitude": null,
+      "longitude": null,
+      "timezone": null,
+      "updatedAt": 1770858678088
+    }
+  }
+]
