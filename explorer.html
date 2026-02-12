@@ -21,10 +21,24 @@
     <div class="w-64 bg-[#1a1a1a] border-r border-neutral-800 flex flex-col p-6 shadow-2xl">
         <h2 class="text-2xl font-black italic mb-10 tracking-tighter text-[#808080]">BLOCKET</h2>
         <nav class="flex flex-col gap-2 flex-grow">
-            <a href="#" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3 active-tab">
-                <span>🌐</span> Explorer
-            </a>
-            </nav>
+            <a href="/stats" id="nav-stats" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3"><span>📊</span> Stats</a>
+            <a href="/inventory" id="nav-inventory" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3"><span>🎒</span> Inventory</a>
+            <a href="/market" id="nav-market" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3"><span>🛒</span> Market</a>
+            <a href="/explorer" id="nav-explorer" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3"><span>🌐</span> Explorer</a>
+            <a href="/chat" id="nav-chat" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3"><span>💬</span> Chat</a>
+
+            <div class="my-4 border-t border-slate-700"></div>
+
+            <a href="/view/credits" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3"><span>📜</span> Credits</a>
+            <a href="/view/terms" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3"><span>⚖️</span> Terms</a>
+            <a href="/view/privacy" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3"><span>🔒</span> Privacy</a>
+        </nav>
+
+        <div class="mt-auto pt-4 border-t border-neutral-800 mb-4">
+            <p id="username-display" class="text-xs font-black uppercase text-neutral-500 tracking-widest">Loading...</p>
+        </div>
+
+        <a href="/logout" class="bg-neutral-800 text-neutral-400 p-3 rounded-lg text-center font-bold hover:bg-red-900/20 hover:text-red-500 transition border border-neutral-700">LOGOUT</a>
     </div>
 
     <div class="flex-grow p-8 flex flex-col">
@@ -117,14 +131,14 @@
 
         function renderGallery(pet) {
 
-            for(let i = 0; i < 9; i++) {
+            for(let i = 0; i < 20; i++) {
                 const card = document.createElement('div');
                 card.className = "pet-card bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 shadow-lg";
                 card.innerHTML = `
                     <img src="https://loremflickr.com/400/300/${pet}?lock=${i}" class="w-full h-48 object-cover" alt="${pet}">
                     <div class="p-4">
-                        <h3 class="font-bold uppercase text-xs text-neutral-500 mb-1">Discovery #${i+1042}</h3>
-                        <p class="font-black italic">Rare ${pet.toUpperCase()}</p>
+                        <h3 class="font-bold uppercase text-xs text-neutral-500 mb-1">Discovery #${i}</h3>
+                        <p class="font-black italic">${pet.toUpperCase()}</p>
                     </div>
                 `;
                 imageGrid.appendChild(card);
