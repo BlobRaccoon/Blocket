@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blocket | Privacy Policy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: "Inter", sans-serif; margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; position: relative; background: linear-gradient(-60deg, #ffffff 0%, #ffffff 15%, rgba(255, 255, 255, 0.2) 30%, #808080 45%, #808080 100%); }
+        #blook-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .blook { position: absolute; width: 20px; height: 30px; pointer-events: none; opacity: 1; transition: opacity 1s ease-out; }
+        .content-wrapper { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; height: 100vh; padding: 20px; }
+        .legal-container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; border: 2px solid #000; height: 80vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div id="blook-container"></div>
+    <div class="content-wrapper">
+        <div class="legal-container">
+            <h1 class="text-3xl font-bold mb-6 border-b-2 border-gray-200 pb-2">Privacy Policy</h1>
+            
+            <section class="mb-6">
+                <h2 class="text-xl font-bold">1. Information We Collect</h2>
+                <p class="text-gray-700 mt-2">When you use Blocket, we collect minimal data required to run the game:</p>
+                <ul class="list-disc ml-6 mt-2 text-gray-700 space-y-2">
+                    <li><strong>Account Data:</strong> Username and hashed password for your login.</li>
+                    <li><strong>Game Progress:</strong> Data related to your items, stats, and achievements.</li>
+                    <li><strong>Log Data:</strong> IP addresses and browser info for security and to prevent hacking.</li>
+                </ul>
+            </section>
+
+            <section class="mb-6">
+                <h2 class="text-xl font-bold">2. How We Use Data</h2>
+                <p class="text-gray-700 mt-2">Your data is only used to maintain your account, save your game progress, and protect the community from rule-breakers.</p>
+            </section>
+
+            <section class="mb-6">
+                <h2 class="text-xl font-bold">3. Third Parties</h2>
+                <p class="text-gray-700 mt-2">We <strong>do not sell your data</strong> to third parties. We only share information if required by law or to protect the safety of our users.</p>
+            </section>
+
+            <div class="text-center mt-8">
+                <a href="/" class="bg-gray-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition border-2 border-black">Back to Home</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        const gravity = 0.3, bounceFactor = 0.7;
+        const svgBlook = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="30" viewBox="0 0 20 30"><path d="M2,10 Q3,0 6,10 Z" fill="#808080"/><path d="M14,10 Q17,0 18,10 Z" fill="#808080"/><rect x="0" y="10" width="20" height="20" rx="4" ry="4" fill="#808080"/></svg>`;
+        function createBlook() {
+            const blook = document.createElement("div"); blook.classList.add("blook"); blook.innerHTML = svgBlook;
+            document.getElementById("blook-container").appendChild(blook);
+            const sw = window.innerWidth, sh = window.innerHeight, x = Math.random() * (sw - 20), rot = Math.random() * 360 - 180;
+            let y = -30, vy = 0; blook.style.left = x + "px"; blook.style.transform = `rotate(${rot}deg)`;
+            function animate() {
+                vy += gravity; y += vy;
+                if (y + 30 >= sh) { y = sh - 30; vy *= -bounceFactor; if (Math.abs(vy) < 1) vy = 0; }
+                blook.style.top = y + "px";
+                if (y < sh || Math.abs(vy) > 0.1) requestAnimationFrame(animate);
+            }
+            animate();
+            setTimeout(() => { blook.style.opacity = "0"; setTimeout(() => blook.remove(), 1000); }, 8000);
+        }
+        setInterval(createBlook, 150);
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blocket | View Content</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .active-tab { background: #808080; color: #ffffff !important; }
+        body { background-color: #121212; }
+    </style>
+</head>
+<body class="text-white flex h-screen overflow-hidden">
+    <div class="w-64 bg-[#1a1a1a] border-r border-neutral-800 flex flex-col p-6 shadow-2xl">
+        <h2 class="text-2xl font-black italic mb-10 tracking-tighter text-[#808080]">BLOCKET</h2>
+        <nav class="flex flex-col gap-2 flex-grow">
+        <a href="/stats" id="nav-stats" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+            <span>📊</span> Stats
+        </a>
+        <a href="/inventory" id="nav-inventory" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+            <span>🎒</span> Inventory
+        </a>
+        <a href="/market" id="nav-market" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+            <span>🛒</span> Market
+        </a>
+        <a href="/explorer" id="nav-explorer" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+            <span>🌐</span> Explorer
+        </a>
+        <a href="/chat" id="nav-chat" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+            <span>💬</span> Chat
+        </a>
+
+        <div class="my-4 border-t border-slate-700"></div>
+
+        <a href="/view/credits" id="nav-credits" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
+            <span>📜</span> Credits
+        </a>
+        <a href="/view/terms" id="nav-terms" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
+            <span>⚖️</span> Terms
+        </a>
+        <a href="/view/privacy" id="nav-privacy" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
+            <span>🔒</span> Privacy
+        </a>
+    </nav>
+        <a href="/logout" class="bg-neutral-800 text-neutral-400 p-3 rounded-lg text-center font-bold hover:bg-red-900/20 hover:text-red-500 transition border border-neutral-700">
+            LOGOUT
+        </a>
+    </div>
+
+    <div class="flex-grow bg-[#121212]">
+        <iframe id="frame" class="w-full h-full border-none bg-[#121212]"></iframe>
+    </div>
+    <script src="/javascript/Isbot.js"></script>
+    <script>
+        const pathParts = window.location.pathname.split('/');
+        const page = pathParts[pathParts.length - 1];
+        const tab = document.getElementById('nav-' + page);
+        
+        if(tab) tab.classList.add('active-tab');
+        
+        document.getElementById('frame').src = '/' + page;
+        async function refreshUser() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.warn("No token found, redirecting to login...");
+        window.location.href = '/login';
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/UserPing', {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            const roleBadge = document.getElementById('role-badge');
+            if (roleBadge) {
+                roleBadge.innerText = data.role;
+            }
+            console.log("refreshed");
+        } else {
+            if (data.error === "Expired" || data.error === "Invalid token") {
+                alert("Session expired. Please log in again.");
+                localStorage.clear();
+                window.location.href = '/login';
+            }
+        }
+    } catch (err) {
+        console.error("Refresh failed:", err);
+    }
+}
+refreshUser();
+setInterval(refreshUser, 1000);
+    </script>
+</body>
+</html>

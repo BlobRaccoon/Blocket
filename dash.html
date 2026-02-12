@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blocket | Stats</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .active-tab { background: #808080; color: #ffffff !important; }
+        body { margin: 0; padding: 0; background-color: #121212; font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #333333; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-white flex h-screen overflow-hidden">
+
+    <div class="w-64 bg-[#1a1a1a] border-r border-neutral-800 flex flex-col p-6 shadow-2xl">
+        <h2 class="text-2xl font-black italic mb-10 tracking-tighter text-[#808080]">BLOCKET</h2>
+        <nav class="flex flex-col gap-2 flex-grow">
+            <a href="/stats" id="nav-stats" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+                <span>📊</span> Stats
+            </a>
+            <a href="/inventory" id="nav-inventory" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+                <span>🎒</span> Inventory
+            </a>
+            <a href="/market" id="nav-market" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+                <span>🛒</span> Market
+            </a>
+            <a href="/explorer" id="nav-explorer" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+                <span>🌐</span> Explorer
+            </a>
+            <a href="/chat" id="nav-chat" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+                <span>💬</span> Chat
+            </a>
+
+            <div class="my-4 border-t border-slate-700"></div>
+
+            <a href="/view/credits" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3"><span>📜</span> Credits</a>
+            <a href="/view/terms" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3"><span>⚖️</span> Terms</a>
+            <a href="/view/privacy" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3"><span>🔒</span> Privacy</a>
+        </nav>
+        <a href="/logout" class="bg-neutral-800 text-neutral-400 p-3 rounded-lg text-center font-bold hover:bg-red-900/20 hover:text-red-500 transition border border-neutral-700 uppercase text-xs">
+            LOGOUT
+        </a>
+    </div>
+
+    <div class="flex-grow p-10 overflow-y-auto bg-[#121212]">
+        <div class="max-w-4xl mx-auto">
+            <header class="mb-10">
+                <h1 class="text-6xl font-black italic uppercase tracking-tighter">Profile</h1>
+                <div id="role-badge" class="inline-block bg-[#808080]/10 text-[#808080] font-black text-[10px] px-3 py-1 rounded-md mt-4 uppercase tracking-widest border border-[#808080]/20">Checking Role...</div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-[#1a1a1a] p-8 rounded-[2rem] border border-neutral-800 shadow-lg">
+                    <h3 class="text-neutral-500 font-black uppercase text-xs mb-6 tracking-widest flex items-center gap-2">
+                        Account Details
+                    </h3>
+                    <div id="data" class="space-y-4">
+                        <p class="text-neutral-600 italic">Loading user data...</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#1a1a1a] p-8 rounded-[2rem] border border-neutral-800 shadow-lg">
+                    <h3 class="text-neutral-500 font-black uppercase text-xs mb-6 tracking-widest flex items-center gap-2">
+                        Collection Summary
+                    </h3>
+                    <div id="summary" class="space-y-6">
+                        <div class="flex justify-between items-end">
+                            <span class="text-neutral-400 font-bold text-sm uppercase">Total Opened</span>
+                            <span id="blocks-opened" class="font-black text-4xl italic text-white leading-none">0</span>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <span class="text-neutral-400 font-bold text-sm uppercase">Unique Unlocked</span>
+                            <span id="unique-count" class="font-black text-2xl italic text-[#808080] leading-none">0</span>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <a href="/inventory" class="block text-center bg-[#808080] hover:bg-neutral-600 text-white p-4 rounded-2xl text-sm font-black transition uppercase tracking-widest">
+                                Open Inventory
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/javascript/Isbot.js"></script>
+    <script>
+        document.getElementById('nav-stats').classList.add('active-tab');
+
+        async function loadStats() {
+            const token = localStorage.getItem('token');
+            if (!token) { window.location.href = '/login'; return; }
+
+            try {
+                const res = await fetch('/api/userdata', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('blocks-opened').innerText = (data.blocksOpened || 0).toLocaleString();
+                    const uniqueItems = Object.keys(data.inventory || {}).length;
+                    document.getElementById('unique-count').innerText = uniqueItems.toLocaleString();
+
+                    document.getElementById('data').innerHTML = `
+                        <div class="flex justify-between items-center border-b border-neutral-800 pb-3">
+                            <span class="text-neutral-500 font-bold text-xs uppercase tracking-wider">Username</span> 
+                            <span class="font-black text-lg">${data.username}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-800 pb-3">
+                            <span class="text-neutral-500 font-bold text-xs uppercase tracking-wider">Tokens</span> 
+                            <span class="text-[#808080] font-black text-lg italic">${data.tokens.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-neutral-800 pb-3">
+                            <span class="text-neutral-500 font-bold text-xs uppercase tracking-wider">Chat Activity</span> 
+                            <span class="font-bold">${data.messagesSent.toLocaleString()} <span class="text-[10px] text-neutral-600 ml-1">MSGS</span></span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="text-neutral-500 font-bold text-xs uppercase tracking-wider">Member Since</span> 
+                            <span class="text-xs font-bold text-neutral-600">${new Date(data.dateJoined).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </div>
+                    `;
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (err) {
+                console.error("Failed to load dashboard:", err);
+            }
+        }
+
+        async function refreshUser() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const response = await fetch('/api/UserPing', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    const roleBadge = document.getElementById('role-badge');
+                    if (roleBadge) roleBadge.innerText = data.role;
+                } else if (data.error === "Expired" || data.error === "Invalid token") {
+                    localStorage.clear();
+                    window.location.href = '/login';
+                }
+            } catch (err) { console.error("Refresh failed:", err); }
+        }
+
+        loadStats();
+        refreshUser();
+        setInterval(refreshUser, 5000); 
+    </script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blocket | Market</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .active-tab { background: #808080; color: #ffffff !important; }
+        .pack-card { background: #1a1a1a; transition: all 0.3s ease; border: 2px solid #262626; }
+        .pack-card:hover { transform: translateY(-5px); border-color: #808080; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+        body { background:#121212; font-family: 'Inter', sans-serif; }
+        #reveal-img, .pack-art { image-rendering: auto; object-fit: cover; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        @keyframes scaleUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .scale-up-animation { animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    </style>
+</head>
+<body class="text-white flex h-screen overflow-hidden">
+
+    <div class="w-64 bg-[#1a1a1a] border-r border-neutral-800 flex flex-col p-6 shadow-2xl">
+        <h2 class="text-2xl font-black italic mb-10 tracking-tighter text-[#808080]">BLOCKET</h2>
+        <nav class="flex flex-col gap-2 flex-grow">
+            <a href="/stats" id="nav-stats" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3"><span>📊</span> Stats</a>
+            <a href="/inventory" id="nav-inventory" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3"><span>🎒</span> Inventory</a>
+            <a href="/market" id="nav-market" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3"><span>🛒</span> Market</a>
+            <a href="/explorer" id="nav-explorer" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3"><span>🌐</span> Explorer</a>
+            <a href="/chat" id="nav-chat" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3"><span>💬</span> Chat</a>
+
+            <div class="my-4 border-t border-slate-700"></div>
+
+            <a href="/view/credits" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3"><span>📜</span> Credits</a>
+            <a href="/view/terms" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3"><span>⚖️</span> Terms</a>
+            <a href="/view/privacy" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3"><span>🔒</span> Privacy</a>
+        </nav>
+
+        <div class="mt-auto pt-4 border-t border-neutral-800 mb-4">
+            <p id="username-display" class="text-xs font-black uppercase text-neutral-500 tracking-widest">Loading...</p>
+        </div>
+
+        <a href="/logout" class="bg-neutral-800 text-neutral-400 p-3 rounded-lg text-center font-bold hover:bg-red-900/20 hover:text-red-500 transition border border-neutral-700">LOGOUT</a>
+    </div>
+
+    <div class="flex-grow p-10 overflow-y-auto bg-[#0f0f0f] flex flex-col">
+        <header class="mb-12 flex justify-between items-end border-b border-neutral-800 pb-8">
+            <div>
+                <h1 class="text-6xl font-black italic uppercase tracking-tighter">Market</h1>
+                <p class="text-neutral-500 font-bold text-xs mt-2 tracking-widest uppercase">Expand your collection</p>
+            </div>
+            <div class="text-right">
+                <div class="text-neutral-500 text-[10px] font-black uppercase tracking-widest mb-1">Tokens</div>
+                <div id="tokens" class="text-3xl font-black text-white italic">0</div>
+            </div>
+        </header>
+
+        <div class="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto w-full">
+            <div class="w-64">
+                <div class="pack-card p-6 rounded-2xl flex flex-col items-center mb-4">
+                    <img src="/blocks/Cat/founder.png" class="pack-art w-32 h-32 mb-4 drop-shadow-xl rounded-3xl" alt="Cat Pack">
+                    <h2 class="text-xl font-black uppercase tracking-wider text-white">Cat Pack</h2>
+                    <p class="text-neutral-500 text-xs mt-2 font-bold italic">25 TOKENS</p>
+                </div>
+                <button onclick="openPack('Cat')" class="open-btn w-full bg-[#808080] hover:bg-neutral-600 text-white font-black py-3 rounded-xl transition-all active:scale-95 disabled:opacity-50">
+                    OPEN
+                </button>
+            </div>
+
+            <div class="w-64">
+                <div class="pack-card p-6 rounded-2xl flex flex-col items-center mb-4">
+                    <img src="/blocks/Dog/doge.png" class="pack-art w-32 h-32 mb-4 drop-shadow-xl rounded-3xl" alt="Dog Pack">
+                    <h2 class="text-xl font-black uppercase tracking-wider text-white">Dog Pack</h2>
+                    <p class="text-neutral-500 text-xs mt-2 font-bold italic">25 TOKENS</p>
+                </div>
+                <button onclick="openPack('Dog')" class="open-btn w-full bg-[#808080] hover:bg-neutral-600 text-white font-black py-3 rounded-xl transition-all active:scale-95 disabled:opacity-50">
+                    OPEN
+                </button>
+            </div>
+        </div>
+        <p id="msg" class="mt-8 text-center font-bold text-red-500 min-h-[1.5rem]"></p>
+    </div>
+
+    <div id="reveal-modal" class="fixed inset-0 bg-black/98 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="text-center scale-up-animation">
+            <h1 class="text-[#808080] font-black text-4xl mb-8 uppercase italic tracking-tighter">New Item Found!</h1>
+            <div id="card-container" class="bg-[#1a1a1a] p-8 rounded-3xl border-4 border-[#808080] w-72 h-96 flex flex-col items-center justify-center mb-10">
+                <img id="reveal-img" class="w-44 h-44 mb-6 drop-shadow-lg" src="" alt="Reward">
+                <h2 id="reveal-name" class="text-2xl font-black uppercase text-white text-center leading-tight"></h2>
+                <div id="reveal-rarity" class="text-xs mt-4 font-black px-5 py-1 rounded-full bg-black/40"></div>
+            </div>
+            <button onclick="closeModal()" class="bg-white text-black hover:bg-neutral-200 px-16 py-4 rounded-full font-black text-lg transition-colors">
+                CONTINUE
+            </button>
+        </div>
+    </div>
+
+    <script src="/javascript/Isbot.js"></script>
+
+    <script>
+        document.getElementById('nav-market').classList.add('active-tab');
+
+        async function init() {
+            const token = localStorage.getItem('token');
+            if (!token) return location.href = '/login';
+            try {
+                const res = await fetch('/api/userdata', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const user = await res.json();
+                document.getElementById('tokens').innerText = (user.tokens || 0).toLocaleString();
+                document.getElementById('username-display').innerText = user.username;
+            } catch (err) { location.href = '/login'; }
+        }
+
+        async function openPack(packType) {
+            const buttons = document.querySelectorAll('.open-btn');
+            const msg = document.getElementById('msg');
+            buttons.forEach(b => b.disabled = true);
+            msg.innerText = "...";
+
+            try {
+                const res = await fetch('/api/open', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ packType: packType })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    msg.innerText = data.error || "Error";
+                    buttons.forEach(b => b.disabled = false);
+                    return;
+                }
+                msg.innerText = "";
+                document.getElementById('tokens').innerText = data.newBalance.toLocaleString();
+                showReveal(data.received);
+            } catch (err) { 
+                msg.innerText = "Error";
+                buttons.forEach(b => b.disabled = false); 
+            }
+        }
+
+        function showReveal(item) {
+            const modal = document.getElementById('reveal-modal');
+            const card = document.getElementById('card-container');
+            const rarityTag = document.getElementById('reveal-rarity');
+            document.getElementById('reveal-img').src = item.path;
+            document.getElementById('reveal-name').innerText = item.name;
+            rarityTag.innerText = item.rarity;
+
+            const colors = {
+                'Godlike': '#ff4444',       
+                'Mythical': '#a855f7',      
+                'Legendary': '#eab308',     
+                'Epic': '#ec4899',          
+                'Rare': '#3b82f6',          
+                'Uncommon': '#22c55e',      
+                'Common': '#94a3b8',        
+                'Super Common': '#525252'   
+            };
+
+            const color = colors[item.rarity] || '#808080';
+            card.style.borderColor = color;
+            rarityTag.style.color = color;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('reveal-modal').classList.replace('flex', 'hidden');
+            document.querySelectorAll('.open-btn').forEach(b => b.disabled = false);
+        }
+
+        init();
+    </script>
+</body>
+</html>

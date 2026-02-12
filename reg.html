@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blocket | Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: "Inter", sans-serif; margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; position: relative; background: linear-gradient(-60deg, #ffffff 0%, #ffffff 15%, rgba(255, 255, 255, 0.2) 30%, #808080 45%, #808080 100%); }
+        #blook-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .blook { position: absolute; width: 20px; height: 30px; pointer-events: none; opacity: 1; transition: opacity 1s ease-out; }
+        .content-wrapper { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .form-container { background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; border: 2px solid #000; }
+        #captcha-display { cursor: pointer; background: #eee; border-radius: 4px; display: flex; justify-content: center; align-items: center; min-height: 50px; }
+    </style>
+</head>
+<body>
+    <div id="blook-container"></div>
+    <div class="content-wrapper">
+        <div class="form-container">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Create Account</h2>
+            <form id="registerForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">Username</label>
+                    <input type="text" name="username" id="username" required class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">Password</label>
+                    <input type="password" name="password" id="password" required class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-500">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">Verification</label>
+                    <div class="flex gap-2">
+                        <div id="captcha-display" class="flex-1 border-2 border-gray-300" title="Click to refresh"></div>
+                        <input type="text" id="captchaInput" placeholder="Code" required class="w-24 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-500">
+                    </div>
+                </div>
+
+                <div class="mb-6 flex items-start">
+                    <input type="checkbox" required class="mt-1 mr-3 h-4 w-4 rounded border-gray-300">
+                    <label class="text-sm text-gray-600">
+                        I accept the <a href="/terms" class="text-blue-600 hover:underline">Terms of Use</a>.
+                    </label>
+                </div>
+                <button type="submit" class="w-full bg-gray-600 text-white font-bold py-2 px-4 rounded-lg border-2 border-black hover:bg-gray-700 transition">
+                    Register
+                </button>
+            </form>
+            <p class="mt-4 text-center text-sm">Already have an account? <a href="/login" class="text-blue-600 hover:underline">Login</a></p>
+        </div>
+    </div>
+    <script>
+        const captchaDisplay = document.getElementById('captcha-display');
+        async function loadCaptcha() {
+            const res = await fetch('/api/captcha');
+            const svg = await res.text();
+            captchaDisplay.innerHTML = svg;
+        }
+        captchaDisplay.onclick = loadCaptcha;
+        window.onload = loadCaptcha;
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const captchaInput = document.getElementById('captchaInput').value;
+
+            const res = await fetch('/api/registeruser', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, captchaInput })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                alert("Account Created! Please Login.");
+                window.location.href = '/login';
+            } else {
+                alert(data.error || "Registration failed");
+                loadCaptcha(); 
+                document.getElementById('captchaInput').value = '';
+            }
+        });
+
+        const gravity = 0.3, bounceFactor = 0.7;
+        const svgBlook = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="30" viewBox="0 0 20 30"><path d="M2,10 Q3,0 6,10 Z" fill="#808080"/><path d="M14,10 Q17,0 18,10 Z" fill="#808080"/><rect x="0" y="10" width="20" height="20" rx="4" ry="4" fill="#808080"/></svg>`;
+        function createBlook() {
+            const blook = document.createElement("div"); blook.classList.add("blook"); blook.innerHTML = svgBlook;
+            document.getElementById("blook-container").appendChild(blook);
+            const sw = window.innerWidth, sh = window.innerHeight, x = Math.random() * (sw - 20), rot = Math.random() * 360 - 180;
+            let y = -30, vy = 0; blook.style.left = x + "px"; blook.style.transform = `rotate(${rot}deg)`;
+            function animate() {
+                vy += gravity; y += vy;
+                if (y + 30 >= sh) { y = sh - 30; vy *= -bounceFactor; if (Math.abs(vy) < 1) vy = 0; }
+                blook.style.top = y + "px";
+                if (y < sh || Math.abs(vy) > 0.1) requestAnimationFrame(animate);
+            }
+            animate();
+            setTimeout(() => { blook.style.opacity = "0"; setTimeout(() => blook.remove(), 1000); }, 8000);
+        }
+        setInterval(createBlook, 150);
+    </script>
+</body>
+</html>

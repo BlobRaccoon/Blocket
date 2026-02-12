@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blocket | Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        .active-tab { background: #808080; color: #ffffff !important; }
+        body { background:#121212; font-family: 'Inter', sans-serif; overflow: hidden; }
+        #browser-frame { background: white; width: 100%; height: calc(100vh - 180px); border-radius: 1rem; overflow: hidden; position: relative; }
+        .browser-content { width: 100%; height: 100%; border: none; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-white flex h-screen">
+
+    <div class="w-64 bg-[#1a1a1a] border-r border-neutral-800 flex flex-col p-6 shadow-2xl">
+        <h2 class="text-2xl font-black italic mb-10 tracking-tighter text-[#808080]">BLOCKET</h2>
+        <nav class="flex flex-col gap-2 flex-grow">
+            <a href="/stats" id="nav-stats" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+                <span>📊</span> Stats
+            </a>
+            <a href="/inventory" id="nav-inventory" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+                <span>🎒</span> Inventory
+            </a>
+            <a href="/market" id="nav-market" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+                <span>🛒</span> Market
+            </a>
+            <a href="/explorer" id="nav-explorer" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3 active-tab">
+                <span>🌐</span> Explorer
+            </a>
+            <a href="/chat" id="nav-chat" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+                <span>💬</span> Chat
+            </a>
+
+            <div class="my-4 border-t border-slate-700"></div>
+
+            <a href="/view/credits" id="nav-credits" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
+                <span>📜</span> Credits
+            </a>
+            <a href="/view/terms" id="nav-terms" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
+                <span>⚖️</span> Terms
+            </a>
+            <a href="/view/privacy" id="nav-privacy" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
+                <span>🔒</span> Privacy
+            </a>
+        </nav>
+        <a href="/logout" class="bg-neutral-800 text-neutral-400 p-3 rounded-lg text-center font-bold hover:bg-red-900/20 hover:text-red-500 transition border border-neutral-700">
+            LOGOUT
+        </a>
+    </div>
+
+    <div class="flex-grow p-8 flex flex-col">
+        <header class="mb-6 flex justify-between items-center">
+            <h1 class="text-5xl font-black italic uppercase tracking-tighter">Pet Explorer</h1>
+            <div class="flex gap-4">
+                <select id="pet-select" class="bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-[#808080] text-sm">
+                    <option value="cat">Cats 🐱</option>
+                    <option value="dog">Dogs 🐶</option>
+                    <option value="hamster">Hamsters 🐹</option>
+                    <option value="capybara">Capybaras 🥥</option>
+                    <option value="axolotl">Axolotls 🦎</option>
+                    <option value="rabbit">Rabbits 🐰</option>
+                    <option value="red panda">Red Pandas 🦊</option>
+                    <option value="penguin">Penguins 🐧</option>
+                    <option value="koala">Koalas 🐨</option>
+                    <option value="hedgehog">Hedgehogs 🦔</option>
+                    <option value="sloth">Sloths 🦥</option>
+                    <option value="otter">Otters 🦦</option>
+                </select>
+                <button onclick="startExplorer()" class="bg-[#808080] hover:bg-neutral-500 px-6 py-2 rounded-lg font-black uppercase transition-all active:scale-95">Search</button>
+            </div>
+        </header>
+
+        <div id="browser-frame" class="shadow-2xl border-4 border-neutral-800">
+            <div id="loading-overlay" class="absolute inset-0 bg-[#1a1a1a] flex flex-col items-center justify-center z-10">
+                <div class="text-6xl mb-4">🔍</div>
+                <p class="font-black text-neutral-500 uppercase tracking-widest">Select a pet to start exploring</p>
+            </div>
+            <iframe id="display" class="browser-content hidden"></iframe>
+        </div>
+    </div>
+
+    <script src="/javascript/Isbot.js"></script>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) location.href = '/login';
+
+        const socket = io({ auth: { token } });
+        const display = document.getElementById('display');
+        const overlay = document.getElementById('loading-overlay');
+
+        function startExplorer() {
+            const pet = document.getElementById('pet-select').value;
+            overlay.innerHTML = `<div class="text-6xl animate-bounce mb-4">🌐</div><p class="font-black text-white uppercase tracking-widest">Loading ${pet} images...</p>`;
+            overlay.classList.remove('hidden');
+            display.classList.add('hidden');
+            socket.emit('start', { pet });
+        }
+
+        socket.on('frame', (html) => {
+            overlay.classList.add('hidden');
+            display.classList.remove('hidden');
+            const doc = display.contentResource || display.contentDocument;
+            doc.open();
+            doc.write(html);
+            doc.close();
+
+            doc.addEventListener('click', (e) => {
+                socket.emit('action', { type: 'click', x: e.clientX, y: e.clientY });
+            });
+        });
+
+        socket.on('err', (msg) => {
+            alert("Error: " + msg);
+        });
+    </script>
+</body>
+</html>

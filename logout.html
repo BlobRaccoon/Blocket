@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logging Out...</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+        }
+        #status {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="status">Loading...</div>
+
+    <script>
+        async function runLogout() {
+            const status = document.getElementById('status');
+            const token = localStorage.getItem('token');
+
+            if (token) {
+                try {
+                    await fetch('/api/logout', {
+                        method: 'POST',
+                        headers: { 
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json' 
+                        }
+                    });
+                } catch (e) {
+                    console.error("Server logout failed, clearing local data anyway.");
+                }
+            }
+
+            localStorage.clear();
+
+            status.innerText = "Logged out!";
+
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        }
+
+        window.onload = runLogout;
+    </script>
+</body>
+</html>

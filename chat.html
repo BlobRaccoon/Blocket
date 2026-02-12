@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blocket | Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body{background:#121212;margin:0;padding:0;font-family:sans-serif}
+        .active-tab{background:#808080;color:#ffffff!important}
+        ::-webkit-scrollbar{width:8px}
+        ::-webkit-scrollbar-track{background:#121212}
+        ::-webkit-scrollbar-thumb{background:#333;border-radius:10px}
+        .chat-msg{background:#1a1a1a;border:1px solid #262626;border-radius:14px;padding:12px 16px;animation: fadeIn 0.2s ease-out}
+        .chat-user{font-weight:900;font-size:.7rem;color:#808080;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+        .chat-text{color:#e5e5e5;word-break:break-word;line-height:1.5}
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+
+<body class="text-white flex h-screen overflow-hidden">
+
+<div class="w-64 bg-[#1a1a1a] border-r border-neutral-800 flex flex-col p-6 shadow-2xl flex-shrink-0">
+    <h2 class="text-2xl font-black italic mb-10 tracking-tighter text-[#808080]">BLOCKET</h2>
+    <nav class="flex flex-col gap-2 flex-grow">
+        <a href="/stats" id="nav-stats" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+            <span>📊</span> Stats
+        </a>
+        <a href="/inventory" id="nav-inventory" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+            <span>🎒</span> Inventory
+        </a>
+        <a href="/market" id="nav-market" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+            <span>🛒</span> Market
+        </a>
+        <a href="/explorer" id="nav-explorer" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+            <span>🌐</span> Explorer
+        </a>
+        <a href="/chat" id="nav-chat" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition flex items-center gap-3">
+            <span>💬</span> Chat
+        </a>
+
+        <div class="my-4 border-t border-slate-700"></div>
+
+        <a href="/view/credits" id="nav-credits" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
+            <span>📜</span> Credits
+        </a>
+        <a href="/view/terms" id="nav-terms" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
+            <span>⚖️</span> Terms
+        </a>
+        <a href="/view/privacy" id="nav-privacy" class="p-3 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition text-sm flex items-center gap-3">
+            <span>🔒</span> Privacy
+        </a>
+    </nav>
+    <a href="/logout" class="bg-neutral-800 text-neutral-400 p-3 rounded-lg text-center font-bold hover:bg-red-900/20 hover:text-red-500 transition border border-neutral-700">LOGOUT</a>
+</div>
+
+<div class="flex-grow p-8 flex flex-col bg-[#121212]">
+    <header class="mb-6 flex justify-between items-end">
+        <div>
+            <h1 class="text-5xl font-black italic uppercase tracking-tighter">Chat</h1>
+            <p class="text-neutral-500 text-sm font-bold tracking-widest uppercase">Global Communications</p>
+        </div>
+        <div id="conn-status" class="text-[10px] font-bold uppercase tracking-widest text-yellow-500">Connecting...</div>
+    </header>
+
+    <div id="chat-messages" class="flex-grow overflow-y-auto bg-black/20 border border-neutral-800 rounded-2xl p-6 space-y-4 shadow-inner">
+        </div>
+
+    <div class="mt-6 flex gap-3 bg-[#1a1a1a] p-2 rounded-2xl border border-neutral-800 shadow-xl">
+        <input id="chat-input" type="text" placeholder="Type a message..." maxlength="500" autocomplete="off"
+               class="flex-grow bg-transparent px-4 py-3 text-white placeholder-neutral-600 focus:outline-none">
+        <button id="chat-send" class="bg-[#808080] hover:bg-white hover:text-black text-white px-8 rounded-xl font-black transition uppercase text-sm tracking-tighter">Send</button>
+    </div>
+</div>
+<script src="/javascript/Isbot.js"></script>
+<script>
+document.getElementById('nav-chat').classList.add('active-tab');
+
+
+const socket = io({
+    auth: {
+        token: localStorage.getItem('token')
+    }
+});
+
+const msgs = document.getElementById('chat-messages');
+const input = document.getElementById('chat-input');
+const send = document.getElementById('chat-send');
+const status = document.getElementById('conn-status');
+
+function render(m){
+    const d = document.createElement('div');
+    d.className = 'chat-msg';
+    
+    const userDiv = document.createElement('div');
+    userDiv.className = 'chat-user';
+
+    userDiv.textContent = `${m.role} • ${m.user}`;
+    
+    const textDiv = document.createElement('div');
+    textDiv.className = 'chat-text';
+    textDiv.textContent = m.message;
+    
+    d.appendChild(userDiv);
+    d.appendChild(textDiv);
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
+}
+
+socket.on('connect', () => {
+    status.innerText = "Online";
+    status.className = "text-[10px] font-bold uppercase tracking-widest text-green-500";
+});
+
+socket.on('connect_error', (err) => {
+    status.innerText = "Connection Failed";
+    status.className = "text-[10px] font-bold uppercase tracking-widest text-red-500";
+    console.error("Socket Auth Error:", err.message);
+    if (err.message === "Invalid token" || err.message === "No token") {
+        window.location.href = "/login";
+    }
+});
+
+socket.on('chat-history', h => {
+    msgs.innerHTML = '';
+    h.forEach(render);
+});
+
+socket.on('chat-message', render);
+
+send.onclick = () => {
+    const val = input.value.trim();
+    if (!val) return;
+
+    socket.emit('chat-message', { message: val });
+    input.value = '';
+};
+
+input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') send.click();
+});
+</script>
+</body>
+</html>
