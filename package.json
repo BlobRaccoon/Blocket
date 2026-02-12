@@ -4,8 +4,8 @@
   "description": "Blocket by blob_raccoon",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node Start.js",
+    "dev": "nodemon Start.js"
   },
   "dependencies": {
     "axios": "^1.6.0",
