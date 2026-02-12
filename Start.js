@@ -22,7 +22,7 @@ const CHAT_HISTORY_LIMIT = 100;
 let chatHistory = [];
 const BANNED_IPS_FILE = path.join(__dirname, 'banned_ips.json');
 const mutedUsers = new Set();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
+const ADMIN_PASSWORD = "55y87w9refuigytwueigyte34q6tw8a7rht8e59q033agtr69a";
 
 const saveBannedIps = (ips) => fs.writeFileSync(BAN_FILE, JSON.stringify(ips, null, 2));
 let bannedIps = getBannedIps();
