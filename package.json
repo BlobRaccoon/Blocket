@@ -2,7 +2,7 @@
   "name": "Blocket",
   "version": "2.3.2",
   "description": "Blocket by blob_raccoon",
-  "main": "index.js",
+  "main": "Start.js",
   "scripts": {
     "start": "node Start.js",
     "dev": "nodemon Start.js"
