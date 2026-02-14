@@ -14,7 +14,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 const OPEN_COST = 25;
 const STARTING_TOKENS = 10000;
-const JWT_SECRET = '9082904362439587';
+const JWT_SECRET = process.env.JWT_SECRET;
 const DB_FILE = './users.json';
 const SESSION_FILE = './JWTs.json';
 const BAN_FILE = './banned_ips.json';
@@ -22,7 +22,7 @@ const CHAT_HISTORY_LIMIT = 100;
 let chatHistory = [];
 const BANNED_IPS_FILE = path.join(__dirname, 'banned_ips.json');
 const mutedUsers = new Set();
-const ADMIN_PASSWORD = "55y87w9refuigytwueigyte34q6tw8a7rht8e59q033agtr69a";
+const ADMIN_PASSWORD = process.env.OWNER_PASSWORD;
 
 const saveBannedIps = (ips) => fs.writeFileSync(BAN_FILE, JSON.stringify(ips, null, 2));
 let bannedIps = getBannedIps();
